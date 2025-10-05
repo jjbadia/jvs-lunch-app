@@ -1,0 +1,92 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f4f8;
+  margin: 20px;
+  color: #333;
+}
+h2 {
+  color: #2c3e50;
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+input[type="text"], select {
+  margin: 10px 0;
+  padding: 16px;
+  font-size: 1.2em;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 400px;
+}
+button {
+  margin: 10px 10px 10px 0;
+  padding: 16px 24px;
+  font-size: 1.2em;
+  border-radius: 8px;
+  background-color: #95a5a6;
+  color: white;
+  border: none;
+  cursor: pointer;
+  min-width: 180px;
+}
+button:hover {
+  background-color: #7f8c8d;
+}
+#productos label {
+  display: flex;
+  align-items: center;
+  margin: 12px 0;
+  font-size: 1.2em;
+}
+#productos input[type="checkbox"] {
+  transform: scale(1.8);
+  margin-right: 12px;
+}
+#sugerencias div:hover{
+  background-color: rgb(210, 217, 218);
+  padding:10px;
+  font-size: 20px;
+}
+#tablaPedidos {
+  margin-top: 30px;
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+}
+#tablaPedidos th, #tablaPedidos td {
+  border: 1px solid #ccc;
+  padding: 12px;
+  text-align: left;
+  font-size: 1.1em;
+}
+#guardar{
+  background-color: rgb(134, 61, 76);
+}
+#guardar:hover{
+  background-color: #c0392b;
+}
+#tablaPedidos th {
+  background-color: rgb(134, 61, 76);
+  color: white;
+}
+.btnEliminar {
+  background-color: rgb(134, 61, 76);
+  padding: 10px 16px;
+  border-radius: 6px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+}
+.btnEliminar:hover {
+  background-color: #c0392b;
+}
+#recargarExcel {
+  font-size: 0.9em;
+  padding: 8px 12px;
+  margin-bottom: 20px;
+  background-color: #95a5a6;
+}
+#recargarExcel:hover {
+  background-color: #7f8c8d;
+}
