@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestión de almuerzos JVS</title>
+  <link rel="stylesheet" href="estilos.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+  <h2>Gestión de almuerzos JVS <img src="img/julio verne school.png" style="float:right;" width=80/></h2>
+  <div id="cargaExcel">
+    <input type="file" id="excelInput" accept=".xlsx,.xls" />
+  </div>
+  <button id="recargarExcel" style="display:none;">📁 Cambiar archivo</button>
+
+  <div id="formulario" style="display:none;">
+    <input type="text" id="busquedaAlumno" placeholder="Buscar alumno..." />
+    <select id="filtroCurso"><option value="">Todos los cursos</option></select>
+    <div id="sugerencias"></div>
+    <div id="productos"></div>
+    <button id="guardar">Guardar pedido</button>
+    <button id="limpiar">Limpiar</button>
+    <button id="exportar">Exportar Excel</button>
+  </div>
+
+  <table id="tablaPedidos">
+    <thead>
+      <tr>
+        <th>Fecha</th><th>Hora</th><th>Nombre</th><th>Curso</th><th>Producto</th><th>Precio</th><th>Acción</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="script.js"></script>
+</body>
+</html>
