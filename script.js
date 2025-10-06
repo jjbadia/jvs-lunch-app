@@ -11,15 +11,17 @@ document.getElementById('excelInput').addEventListener('change', async (e) => {
   cargarCursos();
   document.getElementById('formulario').style.display = 'block';
   document.getElementById('cargaExcel').style.display = 'none';
-  document.getElementById('recargarExcel').style.display = 'inline-block';
+  //document.getElementById('recargarExcel').style.display = 'inline-block';
 });
 
+/*
 document.getElementById('recargarExcel').addEventListener('click', () => {
   document.getElementById('cargaExcel').style.display = 'block';
   document.getElementById('formulario').style.display = 'none';
   document.getElementById('recargarExcel').style.display = 'none';
   document.querySelector("#tablaPedidos tbody").innerHTML = "";
 });
+*/
 
 function cargarCursos() {
   const cursos = [...new Set(alumnos.map(a => a.curso))];
@@ -31,6 +33,22 @@ function cargarCursos() {
     opt.textContent = c;
     select.appendChild(opt);
   });
+}
+
+function actualizarTotalPedidos() {
+  const filas = [...document.querySelectorAll("#tablaPedidos tbody tr")];
+  if (filas.length === 0) {
+    document.getElementById("totalPedidos").style.display = "none";
+    return;
+  }
+
+  const total = filas.reduce((sum, fila) => {
+    const precio = parseFloat(fila.querySelectorAll("td")[5].textContent.replace("€", "").trim());
+    return sum + (isNaN(precio) ? 0 : precio);
+  }, 0);
+
+  document.getElementById("totalPedidos").style.display = "block";
+  document.querySelector("#totalPedidos strong").textContent = `${total.toFixed(2)}€`;
 }
 
 document.getElementById('busquedaAlumno').addEventListener('input', () => {
@@ -144,6 +162,13 @@ document.getElementById('guardar').addEventListener('click', () => {
   limpiarFormulario();
 });
 
+function limpiarFormulario() {
+  document.getElementById('busquedaAlumno').value = "";
+  document.getElementById('filtroCurso').value = "";
+  document.getElementById('sugerencias').innerHTML = "";
+  document.getElementById('productos').innerHTML = "";
+}
+
 function añadirFila(pedido) {
   const tabla = document.querySelector("#tablaPedidos tbody");
   const fila = document.createElement("tr");
@@ -156,18 +181,40 @@ function añadirFila(pedido) {
     <td>${pedido.precio}</td>
     <td><button class="btnEliminar">Eliminar</button></td>
   `;
-  fila.querySelector(".btnEliminar").onclick = () => fila.remove();
+  fila.querySelector(".btnEliminar").onclick = () => {
+    fila.remove();
+    guardarTablaEnLocalStorage();
+    actualizarTotalPedidos();
+  };
   tabla.insertBefore(fila, tabla.firstChild);
+  guardarTablaEnLocalStorage();
+  actualizarTotalPedidos();
 }
 
-document.getElementById('limpiar').addEventListener('click', limpiarFormulario);
-
-function limpiarFormulario() {
-  document.getElementById('busquedaAlumno').value = "";
-  document.getElementById('filtroCurso').value = "";
-  document.getElementById('sugerencias').innerHTML = "";
-  document.getElementById('productos').innerHTML = "";
+function guardarTablaEnLocalStorage() {
+  const filas = [...document.querySelectorAll("#tablaPedidos tbody tr")];
+  const datos = filas.map(f => {
+    const celdas = f.querySelectorAll("td");
+    return {
+      fecha: celdas[0].textContent,
+      hora: celdas[1].textContent,
+      nombre: celdas[2].textContent,
+      curso: celdas[3].textContent,
+      producto: celdas[4].textContent,
+      precio: celdas[5].textContent
+    };
+  });
+  localStorage.setItem("pedidosTabla", JSON.stringify(datos));
 }
+
+document.getElementById('limpiar').addEventListener('click', () => {
+  if (confirm("¿Estás seguro de que quieres borrar todos los pedidos? Esta acción no se puede deshacer.")) {
+    document.querySelector("#tablaPedidos tbody").innerHTML = "";
+    localStorage.removeItem("pedidosTabla");
+    actualizarTotalPedidos();
+  }
+});
+
 
 document.getElementById('exportar').addEventListener('click', () => {
   const filas = [...document.querySelectorAll("#tablaPedidos tbody tr")];
@@ -197,3 +244,12 @@ document.getElementById('exportar').addEventListener('click', () => {
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
   saveAs(new Blob([wbout], { type: "application/octet-stream" }), formattedToday + ".xlsx");
 });
+
+function cargarTablaDesdeLocalStorage() {
+  const datos = JSON.parse(localStorage.getItem("pedidosTabla") || "[]");
+  datos.forEach(pedido => añadirFila(pedido)); 
+  actualizarTotalPedidos();
+}
+
+// Ejecutar al cargar la página
+window.addEventListener("DOMContentLoaded", cargarTablaDesdeLocalStorage);

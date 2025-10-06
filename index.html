@@ -9,21 +9,27 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
-  <h2>Gestión de almuerzos JVS <img src="img/julio verne school.png" style="float:right;" width=80/></h2>
+  <header>
+    <div><h1>Gestión de almuerzos JVS <img src="img/julio verne school.png" style="float:right;" width=80/></h1></div>
+    
+  </header>
   <div id="cargaExcel">
     <input type="file" id="excelInput" accept=".xlsx,.xls" />
   </div>
-  <button id="recargarExcel" style="display:none;">📁 Cambiar archivo</button>
 
-  <div id="formulario" style="display:none;">
+
+<section id="formulario" style="display:none;">
+  <div class="card">
     <input type="text" id="busquedaAlumno" placeholder="Buscar alumno..." />
     <select id="filtroCurso"><option value="">Todos los cursos</option></select>
     <div id="sugerencias"></div>
     <div id="productos"></div>
-    <button id="guardar">Guardar pedido</button>
-    <button id="limpiar">Limpiar</button>
-    <button id="exportar">Exportar Excel</button>
+    <div class="botonera">
+      <button id="guardar">💾 Guardar pedido</button>
+    </div>
   </div>
+</section>
+
 
   <table id="tablaPedidos">
     <thead>
@@ -33,6 +39,12 @@
     </thead>
     <tbody></tbody>
   </table>
+
+<footer class="barraAccion">
+  <button id="limpiar">🧹 Limpiar</button>
+  <button id="exportar">📤 Exportar Excel</button>
+  <div id="totalPedidos" style="display:none;">Total: <strong>0€</strong></div>
+</footer>
 
   <script src="script.js"></script>
 </body>
