@@ -4,7 +4,7 @@ body {
   background: linear-gradient(to bottom right, #b03a48, #d6d6d6, #f0f0f0);
   background-attachment: fixed;
   min-height: 100vh;
-
+  margin-bottom:150px;
 }
 h1{
     font-size: 3.1em;
