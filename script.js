@@ -266,12 +266,18 @@ document.getElementById('exportar').addEventListener('click', () => {
     resumen.unidades += 1;
   });
 
-  // Crear pestañas por producto
+  // Crear pestañas por producto (ordenadas por curso y nombre)
   productosMap.forEach((usuarios, producto) => {
-    const resumen = Array.from(usuarios.entries()).map(([clave, total]) => {
-      const [nombre, curso] = clave.split('||');
-      return { nombre, curso, total };
-    });
+    const resumen = Array.from(usuarios.entries())
+      .map(([clave, total]) => {
+        const [nombre, curso] = clave.split('||');
+        return { nombre, curso, total };
+      })
+      .sort((a, b) => {
+        const cursoComp = a.curso.localeCompare(b.curso);
+        return cursoComp !== 0 ? cursoComp : a.nombre.localeCompare(b.nombre);
+      });
+
     const hojaProducto = XLSX.utils.json_to_sheet(resumen, {
       header: ['nombre', 'curso', 'total']
     });
@@ -294,6 +300,7 @@ document.getElementById('exportar').addEventListener('click', () => {
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
   saveAs(new Blob([wbout], { type: "application/octet-stream" }), formattedToday + ".xlsx");
 });
+
 
 
 function cargarTablaDesdeLocalStorage() {

@@ -32,6 +32,11 @@ input[type="text"], select {
   margin-top: 20px;
 }
 
+.version {
+  font-size:14px;
+  color: #b03a48;
+}
+
 .botonera {
   display: flex;
   flex-wrap: wrap;
