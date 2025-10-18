@@ -229,21 +229,72 @@ document.getElementById('exportar').addEventListener('click', () => {
       precio: parseFloat(celdas[5].textContent)
     };
   });
-  const hoja = XLSX.utils.json_to_sheet(datos);
+
   const wb = XLSX.utils.book_new();
+
+  // Hoja principal
+  const hojaPrincipal = XLSX.utils.json_to_sheet(datos, {
+    header: ['fecha', 'hora', 'nombre', 'curso', 'producto', 'precio']
+  });
   const today = new Date();
   const yyyy = today.getFullYear();
-  let mm = today.getMonth() + 1; // Months start at 0!
+  let mm = today.getMonth() + 1;
   let dd = today.getDate();
-
   if (dd < 10) dd = '0' + dd;
   if (mm < 10) mm = '0' + mm;
-
   const formattedToday = 'Pedidos - ' + yyyy + '-' + mm + '-' + dd;
-  XLSX.utils.book_append_sheet(wb, hoja, formattedToday);
+  XLSX.utils.book_append_sheet(wb, hojaPrincipal, formattedToday);
+
+  // Agrupar por producto y usuario
+  const productosMap = new Map();
+  const resumenGlobal = new Map();
+
+  datos.forEach(({ nombre, curso, producto, precio }) => {
+    // Para resumen por producto
+    if (!productosMap.has(producto)) {
+      productosMap.set(producto, new Map());
+    }
+    const usuarios = productosMap.get(producto);
+    const clave = `${nombre}||${curso}`;
+    usuarios.set(clave, (usuarios.get(clave) || 0) + 1);
+
+    // Para resumen global
+    if (!resumenGlobal.has(producto)) {
+      resumenGlobal.set(producto, { unidades: 0, precio });
+    }
+    const resumen = resumenGlobal.get(producto);
+    resumen.unidades += 1;
+  });
+
+  // Crear pestañas por producto
+  productosMap.forEach((usuarios, producto) => {
+    const resumen = Array.from(usuarios.entries()).map(([clave, total]) => {
+      const [nombre, curso] = clave.split('||');
+      return { nombre, curso, total };
+    });
+    const hojaProducto = XLSX.utils.json_to_sheet(resumen, {
+      header: ['nombre', 'curso', 'total']
+    });
+    XLSX.utils.book_append_sheet(wb, hojaProducto, producto);
+  });
+
+  // Crear hoja resumen global con facturación
+  const resumenArray = Array.from(resumenGlobal.entries()).map(([producto, { unidades, precio }]) => ({
+    producto,
+    precio_unitario: precio,
+    unidades,
+    total_facturado: parseFloat((unidades * precio).toFixed(2))
+  }));
+  const hojaResumen = XLSX.utils.json_to_sheet(resumenArray, {
+    header: ['producto', 'precio_unitario', 'unidades', 'total_facturado']
+  });
+  XLSX.utils.book_append_sheet(wb, hojaResumen, 'Resumen productos');
+
+  // Exportar
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
   saveAs(new Blob([wbout], { type: "application/octet-stream" }), formattedToday + ".xlsx");
 });
+
 
 function cargarTablaDesdeLocalStorage() {
   const datos = JSON.parse(localStorage.getItem("pedidosTabla") || "[]");
