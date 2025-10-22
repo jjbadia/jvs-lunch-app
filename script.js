@@ -11,17 +11,7 @@ document.getElementById('excelInput').addEventListener('change', async (e) => {
   cargarCursos();
   document.getElementById('formulario').style.display = 'block';
   document.getElementById('cargaExcel').style.display = 'none';
-  //document.getElementById('recargarExcel').style.display = 'inline-block';
 });
-
-/*
-document.getElementById('recargarExcel').addEventListener('click', () => {
-  document.getElementById('cargaExcel').style.display = 'block';
-  document.getElementById('formulario').style.display = 'none';
-  document.getElementById('recargarExcel').style.display = 'none';
-  document.querySelector("#tablaPedidos tbody").innerHTML = "";
-});
-*/
 
 function cargarCursos() {
   const cursos = [...new Set(alumnos.map(a => a.curso))];
@@ -76,13 +66,8 @@ document.getElementById('busquedaAlumno').addEventListener('input', () => {
   });
 });
 
-function itemBusquedaHover( event ) {   
-  
-};
-
-function itemBusquedaRelease( event ) {   
-  
-};
+function itemBusquedaHover(event) {}
+function itemBusquedaRelease(event) {}
 
 function seleccionarAlumno(alumno) {
   document.getElementById('busquedaAlumno').value = alumno.nombre;
@@ -125,7 +110,6 @@ function mostrarProductos() {
     cantidad.style.border = "1px solid #ccc";
     cantidad.style.width = "80px";
 
-    // Activar checkbox automáticamente al cambiar cantidad
     cantidad.addEventListener('input', () => {
       checkbox.checked = true;
     });
@@ -133,7 +117,6 @@ function mostrarProductos() {
     label.appendChild(checkbox);
     label.appendChild(cantidad);
     label.appendChild(texto);
-    
     contenedor.appendChild(label);
   });
 }
@@ -215,7 +198,6 @@ document.getElementById('limpiar').addEventListener('click', () => {
   }
 });
 
-
 document.getElementById('exportar').addEventListener('click', () => {
   const filas = [...document.querySelectorAll("#tablaPedidos tbody tr")];
   const datos = filas.map(f => {
@@ -232,7 +214,6 @@ document.getElementById('exportar').addEventListener('click', () => {
 
   const wb = XLSX.utils.book_new();
 
-  // Hoja principal
   const hojaPrincipal = XLSX.utils.json_to_sheet(datos, {
     header: ['fecha', 'hora', 'nombre', 'curso', 'producto', 'precio']
   });
@@ -250,7 +231,6 @@ document.getElementById('exportar').addEventListener('click', () => {
   const resumenGlobal = new Map();
 
   datos.forEach(({ nombre, curso, producto, precio }) => {
-    // Para resumen por producto
     if (!productosMap.has(producto)) {
       productosMap.set(producto, new Map());
     }
@@ -258,7 +238,6 @@ document.getElementById('exportar').addEventListener('click', () => {
     const clave = `${nombre}||${curso}`;
     usuarios.set(clave, (usuarios.get(clave) || 0) + 1);
 
-    // Para resumen global
     if (!resumenGlobal.has(producto)) {
       resumenGlobal.set(producto, { unidades: 0, precio });
     }
@@ -266,17 +245,18 @@ document.getElementById('exportar').addEventListener('click', () => {
     resumen.unidades += 1;
   });
 
-  // Crear pestañas por producto (ordenadas por curso y nombre)
-  productosMap.forEach((usuarios, producto) => {
-    const resumen = Array.from(usuarios.entries())
-      .map(([clave, total]) => {
-        const [nombre, curso] = clave.split('||');
-        return { nombre, curso, total };
-      })
-      .sort((a, b) => {
-        const cursoComp = a.curso.localeCompare(b.curso);
-        return cursoComp !== 0 ? cursoComp : a.nombre.localeCompare(b.nombre);
-      });
+  // Crear pestañas por producto incluyendo todos los alumnos (aunque no tengan pedidos)
+  productos.forEach(({ producto }) => {
+    const usuarios = productosMap.get(producto) || new Map();
+
+    const resumen = alumnos.map(a => {
+      const clave = `${a.nombre}||${a.curso}`;
+      return {
+        nombre: a.nombre,
+        curso: a.curso,
+        total: usuarios.get(clave) || 0
+      };
+    });
 
     const hojaProducto = XLSX.utils.json_to_sheet(resumen, {
       header: ['nombre', 'curso', 'total']
@@ -284,7 +264,7 @@ document.getElementById('exportar').addEventListener('click', () => {
     XLSX.utils.book_append_sheet(wb, hojaProducto, producto);
   });
 
-  // Crear hoja resumen global con facturación
+  // Crear hoja resumen global
   const resumenArray = Array.from(resumenGlobal.entries()).map(([producto, { unidades, precio }]) => ({
     producto,
     precio_unitario: precio,
@@ -296,18 +276,14 @@ document.getElementById('exportar').addEventListener('click', () => {
   });
   XLSX.utils.book_append_sheet(wb, hojaResumen, 'Resumen productos');
 
-  // Exportar
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
   saveAs(new Blob([wbout], { type: "application/octet-stream" }), formattedToday + ".xlsx");
 });
 
-
-
 function cargarTablaDesdeLocalStorage() {
   const datos = JSON.parse(localStorage.getItem("pedidosTabla") || "[]");
-  datos.forEach(pedido => añadirFila(pedido)); 
+  datos.forEach(pedido => añadirFila(pedido));
   actualizarTotalPedidos();
 }
 
-// Ejecutar al cargar la página
 window.addEventListener("DOMContentLoaded", cargarTablaDesdeLocalStorage);
